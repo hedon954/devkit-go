@@ -1,2 +1,2 @@
-// Package ratelimiter provides a collection of rate limters.
+// Package ratelimiter provides a collection of rate limiters.
 package ratelimiter
