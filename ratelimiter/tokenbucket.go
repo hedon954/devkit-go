@@ -118,9 +118,3 @@ func (l *TokenBucket) Rate() float64 {
 func (l *TokenBucket) Interval() time.Duration {
 	return l.interval
 }
-
-func (l *TokenBucket) LastTime() time.Time {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	return l.lastTime
-}
