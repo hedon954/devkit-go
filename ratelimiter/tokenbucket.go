@@ -78,11 +78,6 @@ func (l *TokenBucket) AllowN(n int) bool {
 // advance advances the limiter to the next time interval,
 // and generates new tokens.
 func (l *TokenBucket) advance(n time.Time) {
-	if l.lastTime.IsZero() {
-		l.lastTime = n
-		return
-	}
-
 	diff := n.Sub(l.lastTime)
 	if diff < l.interval {
 		return
