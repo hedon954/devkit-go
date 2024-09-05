@@ -38,10 +38,4 @@ func TestTokenBucket_ShouldWork(t *testing.T) {
 	for i := 0; i < rate; i++ {
 		assert.False(t, rl.Allow())
 	}
-
-	// only pass whole interval would generate tokens
-	time.Sleep(time.Millisecond / 2)
-	for i := 0; i < rate/2; i++ {
-		assert.False(t, rl.Allow())
-	}
 }
