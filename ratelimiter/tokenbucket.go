@@ -38,18 +38,18 @@ type TokenBucket struct {
 	lastTime time.Time
 }
 
-func (l *TokenBucket) SetInterval(i time.Duration) {
-	l.interval = i
-}
-
 // NewTokenBucket creates a new token bucket limiter.
-func NewTokenBucket(rate float64, capacity int) *TokenBucket {
+func NewTokenBucket(rate float64, capacity int, interval ...time.Duration) *TokenBucket {
 	l := &TokenBucket{
 		rate:     rate,
 		capacity: capacity,
 		tokens:   float64(capacity), // initialize with full capacity
 		interval: time.Second,       // default interval is 1 second
 		lastTime: time.Now(),        // initialize lastTime to current time
+	}
+
+	if len(interval) > 0 {
+		l.interval = interval[0]
 	}
 
 	return l

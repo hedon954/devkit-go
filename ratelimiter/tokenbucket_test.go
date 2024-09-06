@@ -11,8 +11,7 @@ func TestTokenBucket_ShouldWork(t *testing.T) {
 	const rate = 10
 	const capacity = 100
 
-	rl := NewTokenBucket(rate, capacity)
-	rl.SetInterval(time.Millisecond)
+	rl := NewTokenBucket(rate, capacity, time.Millisecond)
 	assert.Equal(t, capacity, rl.Tokens())
 	assert.Equal(t, capacity, rl.Capacity())
 	assert.Equal(t, float64(rate), rl.Rate())
