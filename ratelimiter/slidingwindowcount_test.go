@@ -44,9 +44,6 @@ func TestSlidingWindowCount_ShouldWork(t *testing.T) {
 
 	// first 20 tokens should be allowed
 	for i := 0; i < size; i++ {
-		if i < size-5 {
-			time.Sleep(time.Millisecond / 2)
-		}
 		assert.True(t, sw.Allow())
 	}
 
