@@ -1,22 +1,15 @@
-package main
+package pipeline
 
 import (
 	"fmt"
 	"strings"
+	"testing"
 
-	"github.com/hedon954/devkit-go/designmode/pipeline"
+	"github.com/stretchr/testify/assert"
 )
 
-func main() {
-	s := "11 22 33"
-	fmt.Println("before pipeline: s = " + s)
-
-	p := pipeline.NewStandardPipeline(&TailValue{}, &FirstValue{}, &SecondValue{})
-	p.Invoke(s)
-}
-
 type FirstValue struct {
-	pipeline.ValueBase[string]
+	ValueBase[string]
 }
 
 func (f *FirstValue) Invoke(s string) {
@@ -26,7 +19,7 @@ func (f *FirstValue) Invoke(s string) {
 }
 
 type SecondValue struct {
-	pipeline.ValueBase[string]
+	ValueBase[string]
 }
 
 func (sv *SecondValue) Invoke(s string) {
@@ -36,10 +29,19 @@ func (sv *SecondValue) Invoke(s string) {
 }
 
 type TailValue struct {
-	pipeline.ValueBase[string]
+	ValueBase[string]
 }
 
 func (t *TailValue) Invoke(s string) {
 	s = strings.ReplaceAll(s, "33", "tail")
 	fmt.Println("after tail Value handled: s = " + s)
+}
+
+func TestStandardPipeline_ShouldWork(t *testing.T) {
+	assert.NotPanics(t, func() {
+		s := "11 22 33"
+		p := NewStandardPipeline(&TailValue{}, &FirstValue{}, &SecondValue{}, &SecondValue{})
+		p.Invoke(s)
+		assert.NotNil(t, p.GetTail())
+	})
 }
