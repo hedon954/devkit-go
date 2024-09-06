@@ -7,6 +7,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNewSlidingWindowLog(t *testing.T) {
+	t.Run("size not valid should panic", func(t *testing.T) {
+		assert.Panics(t, func() {
+			NewSlidingWindowLog(0)
+		})
+	})
+
+	t.Run("valid size should success", func(t *testing.T) {
+		sw := NewSlidingWindowLog(10)
+		assert.NotNil(t, sw)
+		assert.Equal(t, 10, sw.size)
+	})
+}
+
 func TestSlidingWindowLog_ShouldWork(t *testing.T) {
 	size := 10
 	interval := time.Millisecond * time.Duration(size)

@@ -38,4 +38,10 @@ func TestTokenBucket_ShouldWork(t *testing.T) {
 	for i := 0; i < rate; i++ {
 		assert.False(t, rl.Allow())
 	}
+
+	// sleep lots of intervals, new tokens should be allowed
+	// and tokens should be replenished.
+	time.Sleep(time.Millisecond * 10)
+	assert.True(t, rl.Allow())
+	assert.Equal(t, capacity-1, rl.Tokens())
 }
