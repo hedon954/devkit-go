@@ -1,0 +1,26 @@
+@startuml
+'https://plantuml.com/object-diagram
+
+
+object FirstValue {
+  next : Value
+}
+
+object SecondValue {
+  next: Value
+}
+
+object TailValue {
+  next: Value
+}
+
+FirstValue::next --> SecondValue
+SecondValue::next --> TailValue
+
+map pipeline {
+  head *-> FirstValue
+  tail *-> TailValue
+}
+
+
+@enduml
