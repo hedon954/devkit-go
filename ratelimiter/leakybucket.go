@@ -50,11 +50,11 @@ func (l *LeakyBucket) start() {
 	ticker := time.NewTicker(l.interval)
 	for range ticker.C {
 		for i := 0; i < l.rate; i++ {
-			select {
-			case notify := <-l.queue:
-				notify <- struct{}{}
-			default:
+			notify, ok := <-l.queue
+			if !ok {
+				break
 			}
+			notify <- struct{}{}
 		}
 	}
 }
