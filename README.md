@@ -9,6 +9,8 @@
 
 **devkit-go** is a collection of various Go solutions and tools designed to help developers solve common problems and enhance their applications efficiently. This repository provides ready-to-use code snippets, utilities, libraries, and best practices for Go programming.
 
+- [devkit-rs](https://github.com/hedon954/devkit-rs)
+
 ## Tools
 
 ### Rate Limiter
