@@ -66,7 +66,7 @@ func (rb *RingBuffer[T]) Enqueue(value T) error {
 		rb.count++
 	}
 
-	// Insert the new value
+	// Insert the new Value
 	rb.data[rb.tail] = value
 	rb.tail = (rb.tail + 1) % rb.size
 	return nil

@@ -21,6 +21,17 @@
 - [x] Sliding Window Log
 - [x] Sliding Window Count
 
+### Cache Eviction
+
+- [ ] LRU
+- [ ] LFU
+- [ ] LRU + LFU
+- [ ] FIFO
+- [ ] RR
+- [ ] TTL
+- [ ] MRU
+- [ ] ARC
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
