@@ -23,6 +23,9 @@ type cacheItem struct {
 }
 
 func NewLRUCache(capacity int) *LRUCache {
+	if capacity <= 0 {
+		panic("capacity must be greater than 0")
+	}
 	return &LRUCache{
 		capacity: capacity,
 		hash:     make(map[string]*datastructure.DoublyLinkedNode[cacheItem], capacity),

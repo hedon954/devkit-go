@@ -6,6 +6,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestLRUCache_New(t *testing.T) {
+	t.Run("invalid capacity should panic", func(t *testing.T) {
+		assert.Panics(t, func() {
+			NewLRUCache(0)
+		}, "Expected panic for invalid capacity")
+	})
+
+	t.Run("valid capacity should work", func(t *testing.T) {
+		cache := NewLRUCache(3)
+		assert.NotNil(t, cache, "Expected cache to be created")
+	})
+}
+
 func TestLRUCache_AddAndGet(t *testing.T) {
 	cache := NewLRUCache(3)
 
