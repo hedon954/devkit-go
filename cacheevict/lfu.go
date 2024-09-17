@@ -15,9 +15,8 @@ type LFUCache struct {
 }
 
 type lfuEntry struct {
-	key   string
-	value any
-	freq  int
+	cacheItem
+	freq int
 }
 
 // NewLFUCache creates a new LFUCache with the given capacity.
@@ -51,9 +50,11 @@ func (c *LFUCache) Add(key string, value any) {
 	}
 
 	entry := &lfuEntry{
-		key:   key,
-		value: value,
-		freq:  1,
+		cacheItem: cacheItem{
+			key:   key,
+			value: value,
+		},
+		freq: 1,
 	}
 
 	if c.freq[1] == nil {

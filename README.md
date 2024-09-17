@@ -6,7 +6,6 @@
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/hedon954/devkit-go?sort=semver)](https://github.com/hedon954/devkit-go/releases)
 [![Go Reference](https://pkg.go.dev/badge/github.com/hedon954/devkit-go.svg)](https://pkg.go.dev/github.com/hedon954/devkit-go)
 
-
 **devkit-go** is a collection of various Go solutions and tools designed to help developers solve common problems and enhance their applications efficiently. This repository provides ready-to-use code snippets, utilities, libraries, and best practices for Go programming.
 
 - [devkit-rs](https://github.com/hedon954/devkit-rs)
@@ -23,10 +22,10 @@
 
 ### Cache Eviction
 
-- [ ] LRU
-- [ ] LFU
+- [x] LRU
+- [x] LFU
 - [ ] LRU + LFU
-- [ ] FIFO
+- [x] FIFO
 - [ ] RR
 - [ ] TTL
 - [ ] MRU
@@ -35,4 +34,3 @@
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
-

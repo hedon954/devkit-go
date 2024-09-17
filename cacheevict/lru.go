@@ -17,10 +17,6 @@ type LRUCache struct {
 	link *datastructure.DoublyLinked[cacheItem]
 }
 
-type cacheItem struct {
-	key   string
-	value any
-}
 
 func NewLRUCache(capacity int) *LRUCache {
 	if capacity <= 0 {
