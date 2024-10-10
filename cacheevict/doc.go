@@ -21,6 +21,7 @@ const (
 	FIFO Policy = "fifo"
 	LRU  Policy = "lru"
 	LFU  Policy = "lfu"
+	ARC  Policy = "arc"
 )
 
 type builder struct {
@@ -63,6 +64,8 @@ func New(policy Policy, capacity int) Cache {
 		return NewLRUCache(capacity)
 	case LFU:
 		return NewLFUCache(capacity)
+	case ARC:
+		return NewARCCache(capacity)
 	default:
 		panic("unsupported policy: " + policy)
 	}
