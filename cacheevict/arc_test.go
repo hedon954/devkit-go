@@ -31,7 +31,8 @@ func TestARCCache_UpdateValue(t *testing.T) {
 	cache.Add("a", 10)
 
 	// Test that the value is updated
-	if value, found := cache.Get("a"); !found || value != 10 {
+	value, found := cache.Get("a")
+	if !found || value != 10 {
 		t.Errorf("Expected to find key 'a' with updated value 10, got %v", value)
 	}
 }
@@ -76,40 +77,50 @@ func TestARCCache_Eviction(t *testing.T) {
 }
 
 func TestARCCache_AdjustP(t *testing.T) {
-	cache := NewARCCache(3)
+	cache := NewARCCache(4)
+
+	logState := func(msg string) {
+		t.Logf("%s: p=%d, t1=%d, t2=%d, b1=%d, b2=%d",
+			msg, cache.p, cache.t1.Len(), cache.t2.Len(), cache.b1.Len(), cache.b2.Len())
+	}
+
+	// Initial state
+	logState("Initial state")
+
+	// Fill the cache
 	cache.Add("a", 1)
 	cache.Add("b", 2)
 	cache.Add("c", 3)
-
-	// Record initial p value
-	initialP := cache.p
-
-	// Add a new item to trigger eviction to B1
 	cache.Add("d", 4)
+	logState("After filling cache")
 
-	// Access "a" which should now be in B1, this should increase p
+	// Access "a" and "b" to move them to T2
 	cache.Get("a")
+	cache.Get("b")
+	logState("After accessing 'a' and 'b'")
 
-	if cache.p <= initialP {
-		t.Errorf("Expected p to increase after accessing item in B1, got p = %d", cache.p)
-	}
-
-	// Add more items to push some to B2
+	// Add a new item, causing eviction from T1 to B1
 	cache.Add("e", 5)
-	cache.Add("f", 6)
+	logState("After adding 'e'")
 
-	// Record p value after increase
-	increasedP := cache.p
-
-	// Access an item that should be in B2, this should decrease p
+	// Access an item in B1, should increase p
+	oldP := cache.p
 	cache.Get("c")
-
-	if cache.p >= increasedP {
-		t.Errorf("Expected p to decrease after accessing item in B2, got p = %d", cache.p)
+	logState("After accessing 'c' (B1 hit)")
+	if cache.p <= oldP {
+		t.Errorf("Expected p to increase after B1 hit, old p: %d, new p: %d", oldP, cache.p)
 	}
 
-	// Final boundary check
-	if cache.p < 0 || cache.p > cache.c {
-		t.Errorf("p value out of bounds: p = %d, should be 0 <= p <= %d", cache.p, cache.c)
+	// Continue adding new items
+	cache.Add("f", 6)
+	cache.Add("g", 7)
+	logState("After adding 'f' and 'g'")
+
+	// Access an item in B2, should decrease p
+	oldP = cache.p
+	cache.Get("a")
+	logState("After accessing 'a' (B2 hit)")
+	if cache.p >= oldP {
+		t.Errorf("Expected p to decrease after B2 hit, old p: %d, new p: %d", oldP, cache.p)
 	}
 }

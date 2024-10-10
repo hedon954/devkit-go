@@ -24,12 +24,8 @@
 
 - [x] LRU
 - [x] LFU
-- [ ] LRU + LFU
 - [x] FIFO
-- [ ] RR
-- [ ] TTL
-- [ ] MRU
-- [ ] ARC
+- [x] ARC
 
 ## License
 
