@@ -18,8 +18,8 @@ type LockFreeQueue[T any] struct {
 	size uint64
 	// data stores the data of the queue
 	data []T
-	// valid marks the data is available or not
-	valid []bool
+	// has_data marks the data is available or not
+	has_data []bool
 }
 
 // NewLockFreeQueue creates a new lock-free queue with the given size.
@@ -36,10 +36,10 @@ func NewLockFreeQueue[T any](size int) *LockFreeQueue[T] {
 	}
 
 	return &LockFreeQueue[T]{
-		size:  uint64(size),
-		mod:   uint64(size) - 1,
-		data:  make([]T, size),
-		valid: make([]bool, size),
+		size:     uint64(size),
+		mod:      uint64(size) - 1,
+		data:     make([]T, size),
+		has_data: make([]bool, size),
 	}
 }
 
@@ -50,7 +50,7 @@ func NewLockFreeQueue[T any](size int) *LockFreeQueue[T] {
 func (q *LockFreeQueue[T]) Push(value T) bool {
 	for {
 		head := q.head
-		if q.valid[head] {
+		if q.has_data[head] {
 			return false
 		}
 		// NOTE: here we do not consider the ABA problem,
@@ -62,7 +62,7 @@ func (q *LockFreeQueue[T]) Push(value T) bool {
 			continue
 		}
 		q.data[head] = value
-		q.valid[head] = true
+		q.has_data[head] = true
 		return true
 	}
 }
@@ -74,7 +74,7 @@ func (q *LockFreeQueue[T]) Push(value T) bool {
 func (q *LockFreeQueue[T]) Pop() (T, bool) {
 	for {
 		tail := q.tail
-		if !q.valid[tail] {
+		if !q.has_data[tail] {
 			var zero T
 			return zero, false
 		}
@@ -83,7 +83,7 @@ func (q *LockFreeQueue[T]) Pop() (T, bool) {
 		if !atomic.CompareAndSwapUint64(&q.tail, tail, (tail+1)&q.mod) {
 			continue
 		}
-		q.valid[tail] = false
+		q.has_data[tail] = false
 		return q.data[tail], true
 	}
 }
