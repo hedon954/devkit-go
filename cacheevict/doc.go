@@ -49,7 +49,7 @@ func (b *builder) Capacity(capacity int) *builder {
 // Build builds a new cache with the given policy and capacity.
 func (b *builder) Build() Cache {
 	if b.policy == "" || b.capacity <= 0 {
-		panic("invalid cache config")
+		panic("unspecified policy or capacity")
 	}
 
 	return New(b.policy, b.capacity)
