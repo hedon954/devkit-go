@@ -21,6 +21,7 @@ const (
 	FIFO Policy = "fifo"
 	LRU  Policy = "lru"
 	LFU  Policy = "lfu"
+	ARC  Policy = "arc"
 )
 
 type builder struct {
@@ -48,7 +49,7 @@ func (b *builder) Capacity(capacity int) *builder {
 // Build builds a new cache with the given policy and capacity.
 func (b *builder) Build() Cache {
 	if b.policy == "" || b.capacity <= 0 {
-		panic("invalid cache config")
+		panic("unspecified policy or capacity")
 	}
 
 	return New(b.policy, b.capacity)
@@ -63,6 +64,8 @@ func New(policy Policy, capacity int) Cache {
 		return NewLRUCache(capacity)
 	case LFU:
 		return NewLFUCache(capacity)
+	case ARC:
+		return NewARCCache(capacity)
 	default:
 		panic("unsupported policy: " + policy)
 	}

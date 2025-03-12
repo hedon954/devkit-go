@@ -12,6 +12,12 @@
 
 ## Tools
 
+### Data Structure
+
+- [x] Double-Linked List
+- [x] Ring Buffer
+- [x] Lock-Free Queue
+
 ### Rate Limiter
 
 - [x] Token Bucket
@@ -24,12 +30,13 @@
 
 - [x] LRU
 - [x] LFU
-- [ ] LRU + LFU
 - [x] FIFO
-- [ ] RR
-- [ ] TTL
-- [ ] MRU
-- [ ] ARC
+- [x] ARC
+
+### Design Pattern
+
+- [x] Pipeline
+- [x] Chain of Responsibility
 
 ## License
 
