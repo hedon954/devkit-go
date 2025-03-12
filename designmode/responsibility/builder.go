@@ -41,11 +41,6 @@ func NewBuilder[I any, O any](inboundParam I, outboundFactory OutboundFactory[O]
 
 // Link adds a handler to the chain.
 func (b *Builder[I, O]) Link(handler Handler[I, O]) *Builder[I, O] {
-	if len(b.handlers) > 0 {
-		lastHandler := b.handlers[len(b.handlers)-1]
-		handler.SetPre(lastHandler)
-		lastHandler.SetNext(handler)
-	}
 	b.handlers = append(b.handlers, handler)
 	return b
 }
@@ -54,12 +49,21 @@ func (b *Builder[I, O]) Link(handler Handler[I, O]) *Builder[I, O] {
 func (b *Builder[I, O]) Execute() (*ChainCtx[I, O], error) {
 	ctx := NewChainCtx(b.inboundParam, b.outboundFactory)
 	for i, handler := range b.handlers {
+		// First check if the handler can handle the request
+		if !handler.CanHandle(ctx) {
+			continue
+		}
+
+		// If the handler can handle the request, let it process
 		stop, err := handler.Handle(ctx)
 		if err != nil {
 			ctx.Metadata[handler.Name()+"_error"] = err
 			if b.rollbackOnError {
+				// Rollback in reverse order from current handler
 				for j := i; j >= 0; j-- {
-					b.handlers[j].Rollback(ctx)
+					if b.handlers[j].CanHandle(ctx) {
+						b.handlers[j].Rollback(ctx)
+					}
 				}
 				return nil, err
 			}

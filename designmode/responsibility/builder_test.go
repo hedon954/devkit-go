@@ -22,6 +22,7 @@ type MockHandler struct {
 	handled   bool
 	shouldErr bool
 	stopChain bool
+	canHandle bool
 }
 
 func NewMockHandler(name string, shouldErr, stopChain bool) *MockHandler {
@@ -29,11 +30,16 @@ func NewMockHandler(name string, shouldErr, stopChain bool) *MockHandler {
 		name:      name,
 		shouldErr: shouldErr,
 		stopChain: stopChain,
+		canHandle: true, // By default handlers can handle requests
 	}
 }
 
 func (h *MockHandler) Name() string {
 	return h.name
+}
+
+func (h *MockHandler) CanHandle(ctx *ChainCtx[string, string]) bool {
+	return h.canHandle
 }
 
 func (h *MockHandler) Handle(ctx *ChainCtx[string, string]) (bool, error) {
@@ -66,6 +72,28 @@ func TestBuilder_Execute_Success(t *testing.T) {
 	assert.Equal(t, "h1h2h3", *ctx.Response)
 	assert.True(t, h1.handled)
 	assert.True(t, h2.handled)
+	assert.True(t, h3.handled)
+}
+
+// nolint: dupl
+func TestBuilder_Execute_SkipHandler(t *testing.T) {
+	builder := NewBuilder("input", &MockOutboundFactory{})
+
+	h1 := NewMockHandler("h1", false, false)
+	h2 := NewMockHandler("h2", false, false)
+	h3 := NewMockHandler("h3", false, false)
+
+	// h2 cannot handle the request
+	h2.canHandle = false
+
+	builder.Link(h1).Link(h2).Link(h3)
+
+	ctx, err := builder.Execute()
+
+	assert.NoError(t, err)
+	assert.Equal(t, "h1h3", *ctx.Response)
+	assert.True(t, h1.handled)
+	assert.False(t, h2.handled)
 	assert.True(t, h3.handled)
 }
 
@@ -108,4 +136,51 @@ func TestBuilder_Execute_ErrorWithRollback(t *testing.T) {
 	// After rollback
 	assert.False(t, h1.handled)
 	assert.False(t, h2.handled)
+}
+
+func TestBuilder_Execute_ErrorWithoutRollback(t *testing.T) {
+	builder := NewBuilder("input", &MockOutboundFactory{})
+
+	h1 := NewMockHandler("h1", false, false)
+	h2 := NewMockHandler("h2", true, false) // This handler returns error
+	h3 := NewMockHandler("h3", false, false)
+
+	builder.Link(h1).Link(h2).Link(h3)
+
+	ctx, err := builder.Execute()
+
+	assert.NoError(t, err)
+	assert.Contains(t, ctx.Metadata, "h2_error")
+	assert.True(t, h1.handled)
+	assert.True(t, h2.handled)
+	assert.True(t, h3.handled)
+}
+
+func TestBuilder_Execute_ErrorWithSelectiveRollback(t *testing.T) {
+	builder := NewBuilder("input", &MockOutboundFactory{}, RollbackOnError[string, string](true))
+
+	h1 := NewMockHandler("h1", false, false)
+	h2 := NewMockHandler("h2", false, false)
+	h3 := NewMockHandler("h3", true, false) // This handler returns error
+	h4 := NewMockHandler("h4", false, false)
+
+	// h2 cannot handle the request
+	h2.canHandle = false
+
+	builder.Link(h1).Link(h2).Link(h3).Link(h4)
+
+	ctx, err := builder.Execute()
+
+	assert.Error(t, err)
+	assert.Nil(t, ctx)
+
+	// Verify that h2 was not handled and not rolled back (because canHandle = false)
+	assert.False(t, h2.handled)
+
+	// Verify that h1 and h3 were handled and rolled back
+	assert.False(t, h1.handled) // Rolled back from true
+	assert.False(t, h3.handled) // Rolled back from true
+
+	// Verify that h4 was never handled (due to error in h3)
+	assert.False(t, h4.handled)
 }
