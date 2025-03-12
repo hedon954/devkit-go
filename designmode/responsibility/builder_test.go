@@ -58,7 +58,7 @@ func TestBuilder_Execute_Success(t *testing.T) {
 	h2 := NewMockHandler("h2", false, false)
 	h3 := NewMockHandler("h3", false, false)
 
-	builder.AddHandler(h1).AddHandler(h2).AddHandler(h3)
+	builder.Link(h1).Link(h2).Link(h3)
 
 	ctx, err := builder.Execute()
 
@@ -77,7 +77,7 @@ func TestBuilder_Execute_StopChain(t *testing.T) {
 	h2 := NewMockHandler("h2", false, true) // This handler stops the chain
 	h3 := NewMockHandler("h3", false, false)
 
-	builder.AddHandler(h1).AddHandler(h2).AddHandler(h3)
+	builder.Link(h1).Link(h2).Link(h3)
 
 	ctx, err := builder.Execute()
 
@@ -98,7 +98,7 @@ func TestBuilder_Execute_ErrorWithRollback(t *testing.T) {
 	h2 := NewMockHandler("h2", true, false) // This handler returns error
 	h3 := NewMockHandler("h3", false, false)
 
-	builder.AddHandler(h1).AddHandler(h2).AddHandler(h3)
+	builder.Link(h1).Link(h2).Link(h3)
 
 	ctx, err := builder.Execute()
 

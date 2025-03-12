@@ -39,8 +39,8 @@ func NewBuilder[I any, O any](inboundParam I, outboundFactory OutboundFactory[O]
 	return b
 }
 
-// AddHandler adds a handler to the chain.
-func (b *Builder[I, O]) AddHandler(handler Handler[I, O]) *Builder[I, O] {
+// Link adds a handler to the chain.
+func (b *Builder[I, O]) Link(handler Handler[I, O]) *Builder[I, O] {
 	if len(b.handlers) > 0 {
 		lastHandler := b.handlers[len(b.handlers)-1]
 		handler.SetPre(lastHandler)
