@@ -18,11 +18,11 @@ func (f *MockOutboundFactory) New() *string {
 // MockHandler is a mock implementation of Handler
 type MockHandler struct {
 	HandlerBase[string, string]
-	name      string
-	handled   bool
-	shouldErr bool
-	stopChain bool
-	canHandle bool
+	name          string
+	handleSuccess bool
+	shouldErr     bool
+	stopChain     bool
+	canHandle     bool
 }
 
 func NewMockHandler(name string, shouldErr, stopChain bool) *MockHandler {
@@ -43,16 +43,16 @@ func (h *MockHandler) CanHandle(ctx *ChainCtx[string, string]) bool {
 }
 
 func (h *MockHandler) Handle(ctx *ChainCtx[string, string]) (bool, error) {
-	h.handled = true
 	if h.shouldErr {
 		return h.stopChain, errors.New("mock error")
 	}
+	h.handleSuccess = true
 	*ctx.Response += h.name
 	return h.stopChain, nil
 }
 
 func (h *MockHandler) Rollback(ctx *ChainCtx[string, string]) {
-	h.handled = false
+	h.handleSuccess = false
 	h.HandlerBase.Rollback(ctx)
 }
 
@@ -70,9 +70,9 @@ func TestBuilder_Execute_Success(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, "h1h2h3", *ctx.Response)
-	assert.True(t, h1.handled)
-	assert.True(t, h2.handled)
-	assert.True(t, h3.handled)
+	assert.True(t, h1.handleSuccess)
+	assert.True(t, h2.handleSuccess)
+	assert.True(t, h3.handleSuccess)
 }
 
 // nolint: dupl
@@ -92,9 +92,9 @@ func TestBuilder_Execute_SkipHandler(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, "h1h3", *ctx.Response)
-	assert.True(t, h1.handled)
-	assert.False(t, h2.handled)
-	assert.True(t, h3.handled)
+	assert.True(t, h1.handleSuccess)
+	assert.False(t, h2.handleSuccess)
+	assert.True(t, h3.handleSuccess)
 }
 
 // nolint: dupl
@@ -111,9 +111,9 @@ func TestBuilder_Execute_StopChain(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, "h1h2", *ctx.Response)
-	assert.True(t, h1.handled)
-	assert.True(t, h2.handled)
-	assert.False(t, h3.handled)
+	assert.True(t, h1.handleSuccess)
+	assert.True(t, h2.handleSuccess)
+	assert.False(t, h3.handleSuccess)
 }
 
 // nolint: dupl
@@ -132,10 +132,10 @@ func TestBuilder_Execute_ErrorWithRollback(t *testing.T) {
 
 	assert.Error(t, err)
 	assert.Nil(t, ctx)
-	assert.False(t, h3.handled)
+	assert.False(t, h3.handleSuccess)
 	// After rollback
-	assert.False(t, h1.handled)
-	assert.False(t, h2.handled)
+	assert.False(t, h1.handleSuccess)
+	assert.False(t, h2.handleSuccess)
 }
 
 func TestBuilder_Execute_ErrorWithoutRollback(t *testing.T) {
@@ -151,9 +151,9 @@ func TestBuilder_Execute_ErrorWithoutRollback(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Contains(t, ctx.Metadata, "h2_error")
-	assert.True(t, h1.handled)
-	assert.True(t, h2.handled)
-	assert.True(t, h3.handled)
+	assert.True(t, h1.handleSuccess)
+	assert.False(t, h2.handleSuccess)
+	assert.True(t, h3.handleSuccess)
 }
 
 func TestBuilder_Execute_ErrorWithSelectiveRollback(t *testing.T) {
@@ -175,12 +175,12 @@ func TestBuilder_Execute_ErrorWithSelectiveRollback(t *testing.T) {
 	assert.Nil(t, ctx)
 
 	// Verify that h2 was not handled and not rolled back (because canHandle = false)
-	assert.False(t, h2.handled)
+	assert.False(t, h2.handleSuccess)
 
 	// Verify that h1 and h3 were handled and rolled back
-	assert.False(t, h1.handled) // Rolled back from true
-	assert.False(t, h3.handled) // Rolled back from true
+	assert.False(t, h1.handleSuccess) // Rolled back from true
+	assert.False(t, h3.handleSuccess) // Rolled back from true
 
 	// Verify that h4 was never handled (due to error in h3)
-	assert.False(t, h4.handled)
+	assert.False(t, h4.handleSuccess)
 }

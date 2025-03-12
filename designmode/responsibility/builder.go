@@ -60,7 +60,7 @@ func (b *Builder[I, O]) Execute() (*ChainCtx[I, O], error) {
 			ctx.Metadata[handler.Name()+"_error"] = err
 			if b.rollbackOnError {
 				// Rollback in reverse order from current handler
-				for j := i; j >= 0; j-- {
+				for j := i - 1; j >= 0; j-- {
 					if b.handlers[j].CanHandle(ctx) {
 						b.handlers[j].Rollback(ctx)
 					}
